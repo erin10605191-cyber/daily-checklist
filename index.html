@@ -376,7 +376,10 @@ function saveNow(){
   if(db && fs){
     fs.setDoc(fs.doc(db, 'checklist_days', currentDate), state)
       .then(() => setSync('已同步：' + currentDate))
-      .catch(() => setSync('同步失敗，變更暫存在這台裝置，稍後會重試。', true));
+      .catch((err) => {
+        console.error('[checklist] Firestore write error:', err);
+        setSync('同步失敗（' + (err && err.code ? err.code : 'unknown') + '），變更暫存在這台裝置。', true);
+      });
   }
   renderLog();
 }
@@ -413,7 +416,10 @@ function switchDay(d){
       render();
       setSync('已同步：' + d);
       renderLog();
-    }, err => setSync('連線中斷，變更暫存在這台裝置。', true));
+    }, err => {
+      console.error('[checklist] Firestore listen error:', err);
+      setSync('連線中斷（' + (err && err.code ? err.code : 'unknown') + '），變更暫存在這台裝置。', true);
+    });
   }else{
     setSync('尚未連接雲端：資料只存在這台裝置的瀏覽器。', true);
   }
@@ -519,8 +525,9 @@ async function boot(){
       db = firestoreMod.getFirestore(app);
       fs = firestoreMod;
     }catch(e){
+      console.error('[checklist] Firebase init error:', e);
       setupBanner.style.display = 'block';
-      setupBanner.textContent = 'Firebase 連線失敗，請確認 firebaseConfig 設定是否正確、Firestore 是否已建立。目前資料只存在這台裝置。';
+      setupBanner.textContent = 'Firebase 連線失敗（' + (e && e.message ? e.message : e) + '），請確認 firebaseConfig 設定是否正確、Firestore 是否已建立。目前資料只存在這台裝置。';
       setupBanner.style.borderColor = 'var(--red)';
     }
   }else{
