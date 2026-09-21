@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>每日主管確認表</title>
+<style>
+  :root{
+    --bg:#0a0a0a; --bg2:#141210;
+    --yellow:#ffd21a; --yellow-dim:#c9a90f;
+    --line:#3a331a; --red:#ff5a4e; --green:#3ddc84;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--yellow);
+    font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+    font-size:20px; line-height:1.6; padding:28px 16px 90px;
+  }
+  .wrap{ max-width:760px; margin:0 auto; }
+  h1{
+    font-size:32px; font-weight:800; margin:0 0 4px;
+    border-bottom:3px solid var(--yellow); padding-bottom:16px;
+  }
+  .sub{ color:var(--yellow-dim); font-size:16px; margin:0 0 24px; }
+
+  .setup-banner{
+    border:2px solid var(--red); border-radius:8px;
+    padding:16px 18px; margin-bottom:24px; font-size:15px; color:var(--red);
+    display:none;
+  }
+  .setup-banner code{
+    background:#1a1a1a; padding:1px 6px; border-radius:4px; color:var(--yellow);
+  }
+
+  .datebar{
+    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    margin-bottom:8px;
+  }
+  .datebar label{ font-weight:700; }
+  input[type="date"], input[type="text"], textarea{
+    background:var(--bg2); border:2px solid var(--line); color:var(--yellow);
+    font-family:inherit; font-size:19px; padding:10px 14px;
+    border-radius:6px; outline:none;
+  }
+  input:focus, textarea:focus{ border-color:var(--yellow); }
+  input[type="date"]{ color-scheme:dark; }
+  ::placeholder{ color:#6e5f1f; }
+  .navbtn{
+    background:var(--bg2); border:2px solid var(--line); color:var(--yellow);
+    font-family:inherit; font-size:18px; font-weight:700;
+    padding:10px 14px; border-radius:6px; cursor:pointer;
+  }
+  .navbtn:hover{ border-color:var(--yellow); }
+
+  .syncline{ font-size:14px; color:var(--yellow-dim); margin:0 0 20px; min-height:20px; }
+  .syncline.warn{ color:var(--red); }
+
+  .item{ border-bottom:1px solid var(--line); padding:18px 0; }
+  .item-head{ display:flex; align-items:center; gap:14px; }
+  .item-no{ font-weight:800; color:var(--yellow-dim); font-size:18px; min-width:26px; }
+  .item-input{
+    flex:1; min-width:0; background:transparent; border:none;
+    border-bottom:1px dashed var(--line); color:var(--yellow);
+    font-size:20px; font-weight:600; font-family:inherit; padding:6px 2px;
+  }
+  .item-input:focus{ outline:none; border-bottom:1px solid var(--yellow); }
+  .choice-pair{ display:flex; gap:8px; }
+  .choice-btn{
+    width:48px; height:46px; border-radius:8px;
+    border:2px solid var(--line); background:var(--bg2); color:var(--yellow-dim);
+    font-size:21px; font-weight:800; font-family:inherit; cursor:pointer; line-height:1;
+  }
+  .choice-btn.yes.active{ background:var(--green); border-color:var(--green); color:#0a0a0a; }
+  .choice-btn.no.active{ background:var(--red); border-color:var(--red); color:#0a0a0a; }
+  .del-btn{
+    background:none; border:none; color:#6e5f1f;
+    font-size:22px; cursor:pointer; line-height:1; padding:4px;
+  }
+  .del-btn:hover{ color:var(--red); }
+  .item-note{ margin:12px 0 0 40px; display:flex; align-items:flex-start; gap:10px; }
+  .note-label{ font-size:15px; color:var(--yellow-dim); white-space:nowrap; padding-top:12px; }
+  .note-input{ flex:1; min-width:0; font-size:17px; min-height:48px; resize:vertical; }
+  .item.is-no .note-label{ color:var(--red); }
+  .item.is-no .note-input{ border-color:var(--red); }
+
+  .empty{ color:var(--yellow-dim); font-size:17px; padding:26px 0; border-bottom:1px solid var(--line); }
+
+  .btnrow{ margin-top:18px; display:flex; gap:10px; flex-wrap:wrap; }
+  .add-row-btn{
+    flex:1; min-width:180px;
+    background:none; border:2px dashed var(--line); color:var(--yellow-dim);
+    font-size:17px; font-family:inherit; padding:12px 16px;
+    border-radius:6px; cursor:pointer;
+  }
+  .add-row-btn:hover{ border-color:var(--yellow); color:var(--yellow); }
+
+  .remarks-block{ margin-top:32px; }
+  .remarks-block label{ display:block; font-weight:700; margin-bottom:8px; }
+  #remarks{ width:100%; min-height:100px; resize:vertical; }
+
+  .section-title{
+    margin-top:38px; font-size:17px; font-weight:700;
+    color:var(--yellow-dim); border-top:1px solid var(--line); padding-top:22px;
+  }
+
+  .actions{ margin-top:16px; display:flex; gap:12px; flex-wrap:wrap; }
+  button.main-btn{
+    font-family:inherit; font-size:18px; font-weight:700;
+    padding:14px 22px; border-radius:8px; cursor:pointer;
+    border:2px solid var(--yellow); background:transparent; color:var(--yellow);
+  }
+  .status{ margin-top:14px; font-size:15px; color:var(--yellow-dim); min-height:20px; }
+  .hint{ font-size:14px; color:var(--yellow-dim); margin-top:6px; }
+
+  .log{ margin-top:10px; }
+  .log-entry{
+    border:1px solid var(--line); border-radius:8px;
+    padding:14px 16px; margin-top:10px; font-size:16px;
+  }
+  .log-entry .log-date{ font-weight:800; margin-bottom:6px; }
+  .log-entry .log-item{ margin:2px 0; }
+  .log-entry .log-item.no{ color:var(--red); }
+  .log-entry .log-item.yes{ color:var(--green); }
+  .log-empty{ color:var(--yellow-dim); font-size:15px; }
+
+  @media print{
+    body{ background:#fff; color:#000; padding:0; }
+    h1{ border-color:#000; }
+    .sub, .note-label, .item-no, .syncline{ color:#333; }
+    input, textarea{ background:#fff; color:#000; border-color:#999; }
+    .choice-btn{ border-color:#999; color:#333; }
+    .choice-btn.yes.active, .choice-btn.no.active{ background:#000; color:#fff; }
+    .btnrow, .actions, .del-btn, .status, .navbtn, .hint{ display:none; }
+  }
+  @media (max-width:520px){
+    body{ font-size:18px; }
+    h1{ font-size:26px; }
+    .choice-btn{ width:42px; height:42px; font-size:18px; }
+    .item-input{ font-size:18px; }
+    .item-note{ margin-left:0; flex-direction:column; gap:4px; }
+    .note-label{ padding-top:0; }
+    .note-input{ width:100%; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>每日主管確認表</h1>
+  <p class="sub">選好日期，填上今天要確認的項目；主管打開同一個網址，逐項勾「可 / 否」，勾「否」請在該項備註寫原因。回覆會同步儲存到雲端，當作紀錄。</p>
+
+  <div class="setup-banner" id="setupBanner">
+    ⚠️ 尚未設定 Firebase：請打開 checklist.html 原始碼，找到 <code>firebaseConfig</code>，
+    貼上你自己 Firebase 專案的設定值，否則資料只會存在目前這台裝置的瀏覽器裡，無法跟主管同步。
+  </div>
+
+  <div class="datebar">
+    <button class="navbtn" id="prevDay" title="前一天">‹</button>
+    <label for="reviewDate">日期</label>
+    <input type="date" id="reviewDate">
+    <button class="navbtn" id="nextDay" title="後一天">›</button>
+    <button class="navbtn" id="todayBtn">今天</button>
+  </div>
+  <p class="syncline" id="syncLine">連線中…</p>
+
+  <div id="itemsBody"></div>
+
+  <div class="btnrow">
+    <button class="add-row-btn" id="addItemBtn">＋ 新增項目</button>
+    <button class="add-row-btn" id="copyPrevBtn">沿用前一天項目</button>
+  </div>
+
+  <div class="remarks-block">
+    <label for="remarks">整體備註</label>
+    <textarea id="remarks" placeholder="其他補充說明..."></textarea>
+  </div>
+
+  <div class="actions">
+    <button class="main-btn" id="printBtn">列印 / 存成PDF</button>
+  </div>
+  <div class="status" id="statusMsg"></div>
+
+  <p class="section-title">歷史紀錄</p>
+  <p class="hint">最近 14 天的回覆記錄。</p>
+  <div class="log" id="logBody"></div>
+</div>
+
+<script type="module">
+// ============================================================
+// 1) 到 https://console.firebase.google.com 建立一個專案（免費即可）
+// 2) 專案設定 > 新增網頁應用程式 (</> 圖示)，把產生的設定值貼在下面取代 firebaseConfig
+// 3) 左側選單 Build > Firestore Database > 建立資料庫（正式/測試模式皆可，之後自行調整規則）
+// 4) Firestore 規則範例（僅供內部小規模使用，無登入驗證，請自行評估安全性）：
+//    rules_version = '2';
+//    service cloud.firestore {
+//      match /databases/{database}/documents {
+//        match /checklist_days/{day} {
+//          allow read, write: if true;
+//        }
+//      }
+//    }
+// ============================================================
+const firebaseConfig = {
+  apiKey: "AIzaSyD09RcW69-qddwUDEuXV1_JuEyo2DCOHTE",
+  authDomain: "daily-checklist-9ab4b.firebaseapp.com",
+  projectId: "daily-checklist-9ab4b",
+  storageBucket: "daily-checklist-9ab4b.firebasestorage.app",
+  messagingSenderId: "543334622320",
+  appId: "1:543334622320:web:625e348daeb961269f00b5"
+};
+
+const isConfigured = firebaseConfig.apiKey && firebaseConfig.apiKey.indexOf('YOUR_') !== 0;
+
+let db = null;
+let fs = null;
+
+const itemsBody = document.getElementById('itemsBody');
+const dateEl = document.getElementById('reviewDate');
+const remarksEl = document.getElementById('remarks');
+const statusMsg = document.getElementById('statusMsg');
+const syncLine = document.getElementById('syncLine');
+const logBody = document.getElementById('logBody');
+const setupBanner = document.getElementById('setupBanner');
+
+let currentDate = '';
+let state = { items: [], remarks: '' };
+let saveTimer = null;
+let unsubDoc = null;
+
+function pad(n){ return String(n).padStart(2,'0'); }
+function todayStr(){
+  const d = new Date();
+  return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+}
+function shiftDate(str, days){
+  const p = str.split('-').map(Number);
+  const d = new Date(p[0], p[1]-1, p[2]);
+  d.setDate(d.getDate()+days);
+  return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+}
+function uid(){ return 'i' + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+function localKey(d){ return 'daily_checklist_' + d; }
+
+function setSync(text, warn){
+  syncLine.textContent = text;
+  syncLine.classList.toggle('warn', !!warn);
+}
+
+function saveLocal(d, s){
+  try{ localStorage.setItem(localKey(d), JSON.stringify(s)); }catch(e){}
+}
+function loadLocal(d){
+  try{
+    const raw = localStorage.getItem(localKey(d));
+    if(raw) return JSON.parse(raw);
+  }catch(e){}
+  return null;
+}
+
+function normalize(data){
+  const items = Array.isArray(data && data.items) ? data.items : [];
+  return {
+    items: items.map(it => ({
+      id: it.id || uid(),
+      text: it.text || '',
+      choice: (it.choice === 'yes' || it.choice === 'no') ? it.choice : null,
+      note: it.note || ''
+    })),
+    remarks: (data && data.remarks) || ''
+  };
+}
+
+function render(){
+  const active = document.activeElement;
+  const activeKey = active && active.dataset ? active.dataset.key : null;
+  const selStart = active && active.selectionStart;
+
+  itemsBody.innerHTML = '';
+  if(state.items.length === 0){
+    const p = document.createElement('div');
+    p.className = 'empty';
+    p.textContent = '這一天還沒有項目。按下方「＋ 新增項目」開始。';
+    itemsBody.appendChild(p);
+  }
+  state.items.forEach((it, idx) => itemsBody.appendChild(buildItem(it, idx)));
+
+  if(document.activeElement !== remarksEl){
+    remarksEl.value = state.remarks || '';
+  }
+  if(activeKey){
+    const el = itemsBody.querySelector('[data-key="'+activeKey+'"]');
+    if(el){
+      el.focus();
+      try{ el.setSelectionRange(selStart, selStart); }catch(e){}
+    }
+  }
+}
+
+function buildItem(it, idx){
+  const wrap = document.createElement('div');
+  wrap.className = 'item' + (it.choice === 'no' ? ' is-no' : '');
+
+  const head = document.createElement('div');
+  head.className = 'item-head';
+
+  const no = document.createElement('span');
+  no.className = 'item-no';
+  no.textContent = (idx+1) + '.';
+
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'item-input';
+  input.value = it.text || '';
+  input.placeholder = '請輸入確認項目';
+  input.dataset.key = it.id + ':text';
+  input.addEventListener('input', () => { it.text = input.value; queueSave(); });
+
+  const pair = document.createElement('div');
+  pair.className = 'choice-pair';
+  const yesBtn = document.createElement('button');
+  yesBtn.type='button';
+  yesBtn.className = 'choice-btn yes' + (it.choice==='yes'?' active':'');
+  yesBtn.textContent = '可';
+  const noBtn = document.createElement('button');
+  noBtn.type='button';
+  noBtn.className = 'choice-btn no' + (it.choice==='no'?' active':'');
+  noBtn.textContent = '否';
+  pair.appendChild(yesBtn); pair.appendChild(noBtn);
+
+  const delBtn = document.createElement('button');
+  delBtn.type='button'; delBtn.className='del-btn';
+  delBtn.textContent='✕'; delBtn.title='刪除此項';
+
+  head.appendChild(no); head.appendChild(input);
+  head.appendChild(pair); head.appendChild(delBtn);
+
+  const noteRow = document.createElement('div');
+  noteRow.className = 'item-note';
+  const noteLabel = document.createElement('span');
+  noteLabel.className = 'note-label';
+  noteLabel.textContent = '備註';
+  const noteInput = document.createElement('textarea');
+  noteInput.className = 'note-input';
+  noteInput.value = it.note || '';
+  noteInput.placeholder = '意見或說明（勾「否」請填寫原因）';
+  noteInput.dataset.key = it.id + ':note';
+  noteInput.addEventListener('input', () => { it.note = noteInput.value; queueSave(); });
+  noteRow.appendChild(noteLabel); noteRow.appendChild(noteInput);
+
+  wrap.appendChild(head); wrap.appendChild(noteRow);
+
+  yesBtn.addEventListener('click', () => {
+    it.choice = (it.choice === 'yes') ? null : 'yes';
+    render(); queueSave(true);
+  });
+  noBtn.addEventListener('click', () => {
+    const turningOn = it.choice !== 'no';
+    it.choice = turningOn ? 'no' : null;
+    render(); queueSave(true);
+    if(turningOn){
+      const el = itemsBody.querySelector('[data-key="'+it.id+':note"]');
+      if(el) el.focus();
+    }
+  });
+  delBtn.addEventListener('click', () => {
+    state.items = state.items.filter(x => x.id !== it.id);
+    render(); queueSave(true);
+  });
+
+  return wrap;
+}
+
+remarksEl.addEventListener('input', () => { state.remarks = remarksEl.value; queueSave(); });
+
+function saveNow(){
+  saveLocal(currentDate, state);
+  if(db && fs){
+    fs.setDoc(fs.doc(db, 'checklist_days', currentDate), state)
+      .then(() => setSync('已同步：' + currentDate))
+      .catch(() => setSync('同步失敗，變更暫存在這台裝置，稍後會重試。', true));
+  }
+  renderLog();
+}
+
+function queueSave(immediate){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveNow, immediate ? 60 : 700);
+}
+
+function switchDay(d){
+  currentDate = d;
+  dateEl.value = d;
+  if(unsubDoc){ unsubDoc(); unsubDoc = null; }
+
+  state = normalize(loadLocal(d));
+  render();
+
+  if(db && fs){
+    setSync('讀取中…');
+    unsubDoc = fs.onSnapshot(fs.doc(db, 'checklist_days', d), snap => {
+      if(!snap.exists()){
+        setSync(d + '：還沒有內容，新增項目後會自動儲存並同步。');
+        return;
+      }
+      const incoming = normalize(snap.data());
+      if(JSON.stringify(incoming) === JSON.stringify(state)){ setSync('已同步：' + d); return; }
+      const typing = document.activeElement &&
+        (document.activeElement.classList.contains('item-input') ||
+         document.activeElement.classList.contains('note-input') ||
+         document.activeElement === remarksEl);
+      if(typing) return;
+      state = incoming;
+      saveLocal(d, state);
+      render();
+      setSync('已同步：' + d);
+      renderLog();
+    }, err => setSync('連線中斷，變更暫存在這台裝置。', true));
+  }else{
+    setSync('尚未連接雲端：資料只存在這台裝置的瀏覽器。', true);
+  }
+}
+
+function renderLog(){
+  logBody.innerHTML = '';
+  const days = [];
+  for(let i=0;i<14;i++) days.push(shiftDate(todayStr(), -i));
+
+  function renderEntries(dataByDay){
+    logBody.innerHTML = '';
+    let count = 0;
+    days.forEach(d => {
+      const data = dataByDay[d];
+      if(!data) return;
+      const norm = normalize(data);
+      const hasAnswer = norm.items.some(it => it.text && (it.choice || it.note));
+      if(!hasAnswer) return;
+      count++;
+      const entry = document.createElement('div');
+      entry.className = 'log-entry';
+      const dp = d.split('-');
+      const dateLabel = document.createElement('div');
+      dateLabel.className = 'log-date';
+      dateLabel.textContent = dp[0]+'/'+dp[1]+'/'+dp[2];
+      entry.appendChild(dateLabel);
+      norm.items.forEach(it => {
+        if(!it.text) return;
+        const line = document.createElement('div');
+        const c = it.choice==='yes' ? '可' : (it.choice==='no' ? '否' : '未回覆');
+        line.className = 'log-item' + (it.choice==='no' ? ' no' : it.choice==='yes' ? ' yes' : '');
+        line.textContent = it.text + '：' + c + (it.note ? '（' + it.note + '）' : '');
+        entry.appendChild(line);
+      });
+      logBody.appendChild(entry);
+    });
+    if(count === 0){
+      const p = document.createElement('div');
+      p.className = 'log-empty';
+      p.textContent = '目前還沒有已回覆的紀錄。';
+      logBody.appendChild(p);
+    }
+  }
+
+  if(db && fs){
+    Promise.all(days.map(d =>
+      fs.getDoc(fs.doc(db, 'checklist_days', d)).then(snap => [d, snap.exists() ? snap.data() : null])
+    )).then(pairs => {
+      const map = {};
+      pairs.forEach(([d, data]) => { if(data) map[d] = data; });
+      renderEntries(map);
+    }).catch(() => {
+      const map = {};
+      days.forEach(d => { const l = loadLocal(d); if(l) map[d] = l; });
+      renderEntries(map);
+    });
+  }else{
+    const map = {};
+    days.forEach(d => { const l = loadLocal(d); if(l) map[d] = l; });
+    renderEntries(map);
+  }
+}
+
+document.getElementById('addItemBtn').addEventListener('click', () => {
+  state.items.push({ id: uid(), text:'', choice:null, note:'' });
+  render();
+  const els = itemsBody.querySelectorAll('.item-input');
+  if(els.length) els[els.length-1].focus();
+  queueSave(true);
+});
+
+document.getElementById('copyPrevBtn').addEventListener('click', async () => {
+  const prev = shiftDate(currentDate, -1);
+  let data = null;
+  if(db && fs){
+    try{
+      const snap = await fs.getDoc(fs.doc(db, 'checklist_days', prev));
+      if(snap.exists()) data = snap.data();
+    }catch(e){}
+  }
+  if(!data) data = loadLocal(prev);
+  if(!data){ statusMsg.textContent = prev + ' 沒有資料可沿用。'; return; }
+  const prevItems = normalize(data).items.filter(it => it.text);
+  if(!prevItems.length){ statusMsg.textContent = prev + ' 沒有項目可沿用。'; return; }
+  prevItems.forEach(it => state.items.push({ id: uid(), text: it.text, choice:null, note:'' }));
+  render(); queueSave(true);
+  statusMsg.textContent = '已沿用 ' + prev + ' 的 ' + prevItems.length + ' 個項目（勾選與備註未帶入）。';
+});
+
+document.getElementById('prevDay').addEventListener('click', () => switchDay(shiftDate(currentDate,-1)));
+document.getElementById('nextDay').addEventListener('click', () => switchDay(shiftDate(currentDate,1)));
+document.getElementById('todayBtn').addEventListener('click', () => switchDay(todayStr()));
+dateEl.addEventListener('change', () => { if(dateEl.value) switchDay(dateEl.value); });
+document.getElementById('printBtn').addEventListener('click', () => window.print());
+
+async function boot(){
+  if(isConfigured){
+    try{
+      const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js');
+      const firestoreMod = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
+      const app = initializeApp(firebaseConfig);
+      db = firestoreMod.getFirestore(app);
+      fs = firestoreMod;
+    }catch(e){
+      setupBanner.style.display = 'block';
+      setupBanner.textContent = 'Firebase 連線失敗，請確認 firebaseConfig 設定是否正確、Firestore 是否已建立。目前資料只存在這台裝置。';
+      setupBanner.style.borderColor = 'var(--red)';
+    }
+  }else{
+    setupBanner.style.display = 'block';
+  }
+  switchDay(todayStr());
+}
+
+boot();
+</script>
+</body>
+</html>
