@@ -82,6 +82,9 @@
   .filterbar input{ flex:1; min-width:160px; font-size:17px; }
   .filterbar select{ font-size:17px; }
   .all-row{ border-bottom:1px solid var(--line); padding:14px 0; }
+  #allBody .all-row{ cursor:pointer; padding-left:8px; padding-right:8px; border-radius:6px; }
+  #allBody .all-row:hover{ background:#1d1805; }
+  .item.flash{ background:#2a2208; transition:background .4s; }
   .all-top{ display:flex; gap:10px; align-items:center; font-size:14px; color:var(--yellow-dim); margin-bottom:4px; }
   .badge{ font-weight:800; font-size:14px; padding:1px 10px; border-radius:20px; border:1px solid var(--line); }
   .badge.yes{ background:var(--green); border-color:var(--green); color:#0a0a0a; }
@@ -515,6 +518,17 @@ function drawAll(){
     const tx = document.createElement('div'); tx.className = 'all-text'; tx.textContent = r.text;
     row.appendChild(top); row.appendChild(tx);
     if(r.note){ const n = document.createElement('div'); n.className = 'all-note'; n.textContent = '備註：' + r.note; row.appendChild(n); }
+    row.title = '點擊回到該日確認頁面';
+    row.addEventListener('click', () => {
+      showTab('daily');
+      switchDay(r.date);
+      setTimeout(() => {
+        const el = itemsBody.querySelector('[data-key="' + r.id + ':text"]');
+        const box = el && el.closest('.item');
+        if(box){ box.scrollIntoView({ block:'center', behavior:'smooth' }); box.classList.add('flash'); setTimeout(() => box.classList.remove('flash'), 1800); }
+        else window.scrollTo({ top:0, behavior:'smooth' });
+      }, 350);
+    });
     body.appendChild(row);
   });
 }
