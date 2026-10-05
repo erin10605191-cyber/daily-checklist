@@ -146,7 +146,7 @@
 <body>
 <div class="wrap">
   <h1>每日主管確認表</h1>
-  <p class="sub">請確認逐項內容勾「可 / 否」，勾「否」請在該項備註寫原因。回覆會同步儲存到雲端，當作紀錄。</p>
+  <p class="sub">選好日期，填上今天要確認的項目；主管打開同一個網址，逐項勾「可 / 否」，勾「否」請在該項備註寫原因。回覆會同步儲存到雲端，當作紀錄。</p>
 
   <div class="setup-banner" id="setupBanner">
     ⚠️ 尚未設定 Firebase：請打開 checklist.html 原始碼，找到 <code>firebaseConfig</code>，
@@ -182,6 +182,8 @@
   <p class="section-title">歷史紀錄</p>
   <p class="hint">最近 14 天的回覆記錄。</p>
   <div class="log" id="logBody"></div>
+
+  <div class="status" id="recoverMsg" style="color:var(--green);"></div>
 </div>
 
 <script type="module">
@@ -516,6 +518,51 @@ document.getElementById('todayBtn').addEventListener('click', () => switchDay(to
 dateEl.addEventListener('change', () => { if(dateEl.value) switchDay(dateEl.value); });
 document.getElementById('printBtn').addEventListener('click', () => window.print());
 
+// 一次性救援：把本機 localStorage 裡「有內容」、但雲端那天文件是空的資料，補寫回 Firestore。
+// 只會在這台裝置、這個瀏覽器上有效，執行過一次後會標記完成，不會重複執行。
+async function recoverLocalToCloud(){
+  if(!db || !fs) return;
+  const RECOVER_FLAG = 'daily_checklist_recovered_v1';
+  if(localStorage.getItem(RECOVER_FLAG)) return;
+
+  const candidates = [];
+  for(let i=0;i<localStorage.length;i++){
+    const key = localStorage.key(i);
+    if(key && key.indexOf('daily_checklist_') === 0 && key !== RECOVER_FLAG){
+      const d = key.replace('daily_checklist_', '');
+      if(/^\d{4}-\d{2}-\d{2}$/.test(d)) candidates.push(d);
+    }
+  }
+
+  let recovered = [];
+  for(const d of candidates){
+    const local = normalize(loadLocal(d));
+    const hasLocalContent = local.items.some(it => it.text && it.text.trim());
+    if(!hasLocalContent) continue;
+
+    try{
+      const snap = await fs.getDoc(fs.doc(db, 'checklist_days', d));
+      const remote = snap.exists() ? normalize(snap.data()) : { items: [], remarks: '' };
+      const remoteHasContent = remote.items.some(it => it.text && it.text.trim());
+      if(!remoteHasContent){
+        await fs.setDoc(fs.doc(db, 'checklist_days', d), local);
+        recovered.push(d);
+      }
+    }catch(e){
+      console.error('[checklist] recovery failed for', d, e);
+    }
+  }
+
+  localStorage.setItem(RECOVER_FLAG, '1');
+
+  const recoverMsg = document.getElementById('recoverMsg');
+  if(recovered.length){
+    recoverMsg.textContent = '✅ 已從這台裝置的暫存，救回並同步以下日期的資料：' + recovered.sort().join('、');
+    if(recovered.includes(currentDate)) switchDay(currentDate);
+    renderLog();
+  }
+}
+
 async function boot(){
   if(isConfigured){
     try{
@@ -534,6 +581,7 @@ async function boot(){
     setupBanner.style.display = 'block';
   }
   switchDay(todayStr());
+  await recoverLocalToCloud();
 }
 
 boot();
