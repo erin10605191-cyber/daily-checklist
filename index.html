@@ -198,6 +198,7 @@ let unsubDoc = null;
 let allActive = false;
 let delActive = false;
 let cloudReady = false;
+let lastCloud = { t:0, d:0 };
 let dirty = false;
 
 function pad(n){ return String(n).padStart(2,'0'); }
@@ -342,6 +343,12 @@ function saveNow(){
   saveLocal(currentDate, state);
   if(db && fs){
     if(!cloudReady){ setSync('尚未讀到雲端資料，暫不上傳（避免覆蓋），變更已暫存本機。', true); renderLog(); return; }
+    const nowT = state.items.filter(x => x.text && x.text.trim()).length;
+    if(lastCloud.t > 0 && nowT === 0 && (state.deleted || []).length <= lastCloud.d){
+      setSync('已阻擋上傳：這會把雲端已有的內容清空。請用「✕」逐筆刪除，或重新整理頁面。', true);
+      renderLog(); return;
+    }
+    lastCloud = { t: nowT, d: (state.deleted || []).length };
     dirty = false;
     fs.setDoc(fs.doc(db, 'checklist_days', currentDate), state)
       .then(() => setSync('已同步：' + currentDate))
@@ -368,6 +375,8 @@ function switchDay(d){
     setSync('讀取中…');
     unsubDoc = fs.onSnapshot(fs.doc(db, 'checklist_days', d), snap => {
       const first = !cloudReady; cloudReady = true;
+      { const n0 = snap.exists() ? normalize(snap.data()) : null;
+        lastCloud = n0 ? { t: n0.items.filter(x => x.text && x.text.trim()).length, d: n0.deleted.length } : { t:0, d:0 }; }
       if(first && dirty){
         const inc = snap.exists() ? normalize(snap.data()) : { items: [], remarks: '', deleted: [] };
         const ids = new Set(inc.items.map(x => x.id));
