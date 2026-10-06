@@ -5,167 +5,118 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>每日主管確認表</title>
 <style>
-  :root{
-    --bg:#0a0a0a; --bg2:#141210;
-    --yellow:#ffd21a; --yellow-dim:#c9a90f; --text:#ffffff;
-    --line:#3a331a; --red:#ff5a4e; --green:#3ddc84;
-  }
+  :root{ --bg:#0a0a0a; --bg2:#141210; --yellow:#ffd21a; --yellow-dim:#c9a90f; --text:#ffffff; --line:#3a331a; --red:#ff5a4e; --green:#3ddc84; }
   *{box-sizing:border-box;}
-  body{
-    margin:0; background:var(--bg); color:var(--text);
+  body{ margin:0; background:var(--bg); color:var(--text);
     font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
-    font-size:20px; line-height:1.6; padding:28px 16px 90px;
-  }
+    font-size:20px; line-height:1.6; padding:28px 16px 90px; }
   .wrap{ max-width:760px; margin:0 auto; }
-  h1{
-    font-size:32px; font-weight:800; margin:0 0 4px;
-    border-bottom:3px solid var(--yellow); padding-bottom:16px;
-  }
-  .sub{ color:var(--text); font-size:16px; margin:0 0 24px; }
+  h1{ font-size:32px; font-weight:800; margin:0 0 4px; border-bottom:3px solid var(--yellow); padding-bottom:16px; }
+  .sub{ color:var(--text); font-size:16px; margin:0 0 20px; }
+  .setup-banner{ border:2px solid var(--red); border-radius:8px; padding:16px 18px; margin-bottom:24px; font-size:15px; color:var(--red); display:none; }
+  .setup-banner code{ background:#1a1a1a; padding:1px 6px; border-radius:4px; color:var(--yellow); }
 
-  .setup-banner{
-    border:2px solid var(--red); border-radius:8px;
-    padding:16px 18px; margin-bottom:24px; font-size:15px; color:var(--red);
-    display:none;
-  }
-  .setup-banner code{
-    background:#1a1a1a; padding:1px 6px; border-radius:4px; color:var(--yellow);
-  }
-
-  .auth-gate{
-    min-height:60vh; display:flex; flex-direction:column; align-items:center;
-    justify-content:center; text-align:center; gap:18px; padding:40px 16px;
-  }
-  .auth-gate h2{ font-size:24px; margin:0; }
+  .auth-gate{ min-height:60vh; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; gap:18px; padding:40px 16px; }
+  .auth-gate h2{ font-size:24px; margin:0; color:var(--text); }
   .auth-gate p{ color:var(--text); font-size:16px; max-width:420px; margin:0; }
-  .google-btn{
-    display:inline-flex; align-items:center; gap:10px;
-    background:var(--yellow); color:#0a0a0a; font-family:inherit;
-    font-size:18px; font-weight:700; padding:14px 24px;
-    border-radius:8px; border:none; cursor:pointer;
-  }
+  .google-btn{ display:inline-flex; align-items:center; gap:10px; background:var(--yellow); color:#0a0a0a;
+    font-family:inherit; font-size:18px; font-weight:700; padding:14px 24px; border-radius:8px; border:none; cursor:pointer; }
   .google-btn:hover{ filter:brightness(1.05); }
   .auth-error{ color:var(--text); font-size:15px; max-width:420px; }
-
-  .userbar{
-    display:flex; align-items:center; justify-content:space-between;
-    gap:10px; margin-bottom:20px; font-size:14px; color:var(--yellow-dim);
-    flex-wrap:wrap;
-  }
-  .userbar .signout-btn{
-    background:none; border:1px solid var(--line); color:var(--yellow-dim);
-    font-family:inherit; font-size:13px; padding:6px 12px;
-    border-radius:6px; cursor:pointer;
-  }
+  .userbar{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:20px;
+    font-size:14px; color:var(--text); flex-wrap:wrap; }
+  .userbar .signout-btn{ background:none; border:1px solid var(--line); color:var(--text);
+    font-family:inherit; font-size:13px; padding:6px 12px; border-radius:6px; cursor:pointer; }
   .userbar .signout-btn:hover{ border-color:var(--yellow); color:var(--yellow); }
-
   .app-content{ display:none; }
 
-  .datebar{
-    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
-    margin-bottom:8px;
-  }
+  .tabs{ display:flex; gap:8px; margin-bottom:22px; }
+  .tab{ flex:1; font-family:inherit; font-size:18px; font-weight:700; padding:12px; border-radius:8px; cursor:pointer;
+    background:var(--bg2); border:2px solid var(--line); color:var(--text); }
+  .tab.active{ border-color:var(--yellow); color:var(--text); background:#1d1805; }
+  .view{ display:none; }
+  .view.active{ display:block; }
+
+  .datebar{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:8px; }
   .datebar label{ font-weight:700; }
-  input[type="date"], input[type="text"], textarea{
+  input[type="date"], input[type="text"], textarea, select{
     background:var(--bg2); border:2px solid var(--line); color:var(--text);
-    font-family:inherit; font-size:19px; padding:10px 14px;
-    border-radius:6px; outline:none;
-  }
-  input:focus, textarea:focus{ border-color:var(--yellow); }
+    font-family:inherit; font-size:19px; padding:10px 14px; border-radius:6px; outline:none; }
+  input:focus, textarea:focus, select:focus{ border-color:var(--yellow); }
   input[type="date"]{ color-scheme:dark; }
   ::placeholder{ color:#6e5f1f; }
-  .navbtn{
-    background:var(--bg2); border:2px solid var(--line); color:var(--text);
-    font-family:inherit; font-size:18px; font-weight:700;
-    padding:10px 14px; border-radius:6px; cursor:pointer;
-  }
+  .navbtn{ background:var(--bg2); border:2px solid var(--line); color:var(--text);
+    font-family:inherit; font-size:18px; font-weight:700; padding:10px 14px; border-radius:6px; cursor:pointer; }
   .navbtn:hover{ border-color:var(--yellow); }
-
-  .syncline{ font-size:14px; color:var(--yellow-dim); margin:0 0 20px; min-height:20px; }
+  .syncline{ font-size:14px; color:var(--text); margin:0 0 20px; min-height:20px; }
   .syncline.warn{ color:var(--red); }
 
   .item{ border-bottom:1px solid var(--line); padding:18px 0; }
-  .item-head{ display:flex; align-items:center; gap:14px; }
-  .item-no{ font-weight:800; color:var(--yellow-dim); font-size:18px; min-width:26px; }
-  .item-input{
-    flex:1; min-width:0; background:transparent; border:none;
-    border-bottom:1px dashed var(--line); color:var(--text);
-    font-size:20px; font-weight:600; font-family:inherit; padding:6px 2px;
-  }
-  .item-input:focus{ outline:none; border-bottom:1px solid var(--yellow); }
+  .item-head{ display:flex; align-items:flex-start; gap:14px; }
+  .item-no{ font-weight:800; color:var(--text); font-size:18px; min-width:26px; padding-top:8px; }
+  textarea.item-input{
+    flex:1; min-width:0; background:transparent; border:none; border-bottom:1px dashed var(--line);
+    border-radius:0; color:var(--text); font-size:20px; font-weight:600; font-family:inherit;
+    padding:6px 2px; line-height:1.5; resize:none; overflow:hidden; min-height:42px; }
+  textarea.item-input:focus{ border-bottom:1px solid var(--yellow); }
   .choice-pair{ display:flex; gap:8px; }
-  .choice-btn{
-    width:48px; height:46px; border-radius:8px;
-    border:2px solid var(--line); background:var(--bg2); color:var(--yellow-dim);
-    font-size:21px; font-weight:800; font-family:inherit; cursor:pointer; line-height:1;
-  }
+  .choice-btn{ width:48px; height:46px; border-radius:8px; border:2px solid var(--line); background:var(--bg2);
+    color:var(--text); font-size:21px; font-weight:800; font-family:inherit; cursor:pointer; line-height:1; }
   .choice-btn.yes.active{ background:var(--green); border-color:var(--green); color:#0a0a0a; }
   .choice-btn.no.active{ background:var(--red); border-color:var(--red); color:#0a0a0a; }
-  .del-btn{
-    background:none; border:none; color:#6e5f1f;
-    font-size:22px; cursor:pointer; line-height:1; padding:4px;
-  }
+  .del-btn{ background:none; border:none; color:#6e5f1f; font-size:22px; cursor:pointer; line-height:1; padding:10px 4px; }
   .del-btn:hover{ color:var(--red); }
   .item-note{ margin:12px 0 0 40px; display:flex; align-items:flex-start; gap:10px; }
-  .note-label{ font-size:15px; color:var(--yellow-dim); white-space:nowrap; padding-top:12px; }
+  .note-label{ font-size:15px; color:var(--text); white-space:nowrap; padding-top:12px; }
   .note-input{ flex:1; min-width:0; font-size:17px; min-height:48px; resize:vertical; }
   .item.is-no .note-label{ color:var(--red); }
   .item.is-no .note-input{ border-color:var(--red); }
-
-  .empty{ color:var(--yellow-dim); font-size:17px; padding:26px 0; border-bottom:1px solid var(--line); }
+  .empty{ color:var(--text); font-size:17px; padding:26px 0; border-bottom:1px solid var(--line); }
 
   .btnrow{ margin-top:18px; display:flex; gap:10px; flex-wrap:wrap; }
-  .add-row-btn{
-    flex:1; min-width:180px;
-    background:none; border:2px dashed var(--line); color:var(--yellow-dim);
-    font-size:17px; font-family:inherit; padding:12px 16px;
-    border-radius:6px; cursor:pointer;
-  }
+  .add-row-btn{ flex:1; min-width:180px; background:none; border:2px dashed var(--line); color:var(--text);
+    font-size:17px; font-family:inherit; padding:12px 16px; border-radius:6px; cursor:pointer; }
   .add-row-btn:hover{ border-color:var(--yellow); color:var(--yellow); }
-
   .remarks-block{ margin-top:32px; }
   .remarks-block label{ display:block; font-weight:700; margin-bottom:8px; }
   #remarks{ width:100%; min-height:100px; resize:vertical; }
-
-  .section-title{
-    margin-top:38px; font-size:17px; font-weight:700;
-    color:var(--yellow-dim); border-top:1px solid var(--line); padding-top:22px;
-  }
-
-  .actions{ margin-top:16px; display:flex; gap:12px; flex-wrap:wrap; }
-  button.main-btn{
-    font-family:inherit; font-size:18px; font-weight:700;
-    padding:14px 22px; border-radius:8px; cursor:pointer;
-    border:2px solid var(--yellow); background:transparent; color:var(--text);
-  }
-  .status{ margin-top:14px; font-size:15px; color:var(--yellow-dim); min-height:20px; }
-  .hint{ font-size:14px; color:var(--yellow-dim); margin-top:6px; }
+  .section-title{ margin-top:38px; font-size:17px; font-weight:700; color:var(--text); border-top:1px solid var(--line); padding-top:22px; }
+  .status{ margin-top:14px; font-size:15px; color:var(--text); min-height:20px; }
+  .hint{ font-size:14px; color:var(--text); margin-top:6px; }
 
   .log{ margin-top:10px; }
-  .log-entry{
-    border:1px solid var(--line); border-radius:8px;
-    padding:14px 16px; margin-top:10px; font-size:16px;
-  }
+  .log-entry{ border:1px solid var(--line); border-radius:8px; padding:14px 16px; margin-top:10px; font-size:16px; }
   .log-entry .log-date{ font-weight:800; margin-bottom:6px; }
-  .log-entry .log-item{ margin:2px 0; }
+  .log-entry .log-item{ margin:2px 0; white-space:pre-wrap; word-break:break-word; }
   .log-entry .log-item.no{ color:var(--red); }
   .log-entry .log-item.yes{ color:var(--green); }
-  .log-empty{ color:var(--yellow-dim); font-size:15px; }
+  .log-empty{ color:var(--text); font-size:15px; }
 
-  @media print{
-    body{ background:#fff; color:#000; padding:0; }
-    h1{ border-color:#000; }
-    .sub, .note-label, .item-no, .syncline{ color:#333; }
-    input, textarea{ background:#fff; color:#000; border-color:#999; }
-    .choice-btn{ border-color:#999; color:#333; }
-    .choice-btn.yes.active, .choice-btn.no.active{ background:#000; color:#fff; }
-    .btnrow, .actions, .del-btn, .status, .navbtn, .hint, .userbar{ display:none; }
-  }
+  .filterbar{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:12px; }
+  .filterbar input{ flex:1; min-width:160px; font-size:17px; }
+  .filterbar select{ font-size:17px; }
+  .all-row{ border-bottom:1px solid var(--line); padding:14px 0; }
+  #allBody .all-row{ cursor:pointer; padding-left:8px; padding-right:8px; border-radius:6px; }
+  #allBody .all-row:hover{ background:#1d1805; }
+  .item.flash{ background:#2a2208; transition:background .4s; }
+  .all-top{ display:flex; gap:10px; align-items:center; font-size:14px; color:var(--text); margin-bottom:4px; }
+  .badge{ font-weight:800; font-size:14px; padding:1px 10px; border-radius:20px; border:1px solid var(--line); }
+  .badge.yes{ background:var(--green); border-color:var(--green); color:#0a0a0a; }
+  .badge.no{ background:var(--red); border-color:var(--red); color:#0a0a0a; }
+  .all-text{ font-size:19px; font-weight:600; white-space:pre-wrap; word-break:break-word; }
+  .all-note{ font-size:16px; color:var(--text); white-space:pre-wrap; word-break:break-word; margin-top:2px; }
+  .all-row.is-no .all-note{ color:var(--red); }
+
+  .restore-btn{ margin-top:8px; font-family:inherit; font-size:15px; font-weight:700; padding:6px 14px; border-radius:6px;
+    cursor:pointer; background:transparent; border:2px solid var(--yellow); color:var(--text); }
+  .restore-btn:hover{ background:var(--yellow); color:#0a0a0a; }
+  .tab{ font-size:17px; }
   @media (max-width:520px){
     body{ font-size:18px; }
     h1{ font-size:26px; }
     .choice-btn{ width:42px; height:42px; font-size:18px; }
-    .item-input{ font-size:18px; }
+    textarea.item-input{ font-size:18px; }
     .item-note{ margin-left:0; flex-direction:column; gap:4px; }
     .note-label{ padding-top:0; }
     .note-input{ width:100%; }
@@ -195,55 +146,63 @@
     <button class="signout-btn" id="signOutBtn">登出</button>
   </div>
 
-  <div class="datebar">
-    <button class="navbtn" id="prevDay" title="前一天">‹</button>
-    <label for="reviewDate">日期</label>
-    <input type="date" id="reviewDate">
-    <button class="navbtn" id="nextDay" title="後一天">›</button>
-    <button class="navbtn" id="todayBtn">今天</button>
-  </div>
-  <p class="syncline" id="syncLine">連線中…</p>
-
-  <div id="itemsBody"></div>
-
-  <div class="btnrow">
-    <button class="add-row-btn" id="addItemBtn">＋ 新增項目</button>
-    <button class="add-row-btn" id="copyPrevBtn">沿用前一天項目</button>
+  <div class="tabs">
+    <button class="tab active" id="tabDaily">每日確認</button>
+    <button class="tab" id="tabAll">所有項目</button>
+    <button class="tab" id="tabDel">刪除紀錄</button>
   </div>
 
-  <div class="remarks-block">
-    <label for="remarks">整體備註</label>
-    <textarea id="remarks" placeholder="其他補充說明..."></textarea>
+  <div class="view active" id="viewDaily">
+    <div class="datebar">
+      <button class="navbtn" id="prevDay" title="前一天">‹</button>
+      <label for="reviewDate">日期</label>
+      <input type="date" id="reviewDate">
+      <button class="navbtn" id="nextDay" title="後一天">›</button>
+      <button class="navbtn" id="todayBtn">今天</button>
+    </div>
+    <p class="syncline" id="syncLine">連線中…</p>
+
+    <div id="itemsBody"></div>
+
+    <div class="btnrow">
+      <button class="add-row-btn" id="addItemBtn">＋ 新增項目</button>
+      <button class="add-row-btn" id="copyPrevBtn">沿用前一天項目</button>
+    </div>
+
+    <div class="remarks-block">
+      <label for="remarks">整體備註</label>
+      <textarea id="remarks" placeholder="其他補充說明..."></textarea>
+    </div>
+    <div class="status" id="statusMsg"></div>
+
+    <p class="section-title">歷史紀錄</p>
+    <p class="hint">最近 14 天的回覆記錄。</p>
+    <div class="log" id="logBody"></div>
+    <div class="status" id="recoverMsg" style="color:var(--green);"></div>
   </div>
 
-  <div class="actions">
-    <button class="main-btn" id="printBtn">列印 / 存成PDF</button>
+  <div class="view" id="viewAll">
+    <div class="filterbar">
+      <input type="text" id="allSearch" placeholder="搜尋項目或備註…">
+      <select id="allFilter">
+        <option value="all">全部</option>
+        <option value="yes">可</option>
+        <option value="no">否</option>
+        <option value="none">未回覆</option>
+      </select>
+    </div>
+    <p class="hint" id="allCount">載入中…</p>
+    <div id="allBody"></div>
   </div>
-  <div class="status" id="statusMsg"></div>
 
-  <p class="section-title">歷史紀錄</p>
-  <p class="hint">最近 14 天的回覆記錄。</p>
-  <div class="log" id="logBody"></div>
-
-  <div class="status" id="recoverMsg" style="color:var(--green);"></div>
+  <div class="view" id="viewDel">
+    <p class="hint" id="delCount">載入中…</p>
+    <div id="delBody"></div>
+  </div>
   </div><!-- /app-content -->
 </div>
 
 <script type="module">
-// ============================================================
-// 1) 到 https://console.firebase.google.com 建立一個專案（免費即可）
-// 2) 專案設定 > 新增網頁應用程式 (</> 圖示)，把產生的設定值貼在下面取代 firebaseConfig
-// 3) 左側選單 Build > Firestore Database > 建立資料庫（正式/測試模式皆可，之後自行調整規則）
-// 4) Firestore 規則範例（僅供內部小規模使用，無登入驗證，請自行評估安全性）：
-//    rules_version = '2';
-//    service cloud.firestore {
-//      match /databases/{database}/documents {
-//        match /checklist_days/{day} {
-//          allow read, write: if true;
-//        }
-//      }
-//    }
-// ============================================================
 const firebaseConfig = {
   apiKey: "AIzaSyD09RcW69-qddwUDEuXV1_JuEyo2DCOHTE",
   authDomain: "daily-checklist-9ab4b.firebaseapp.com",
@@ -261,10 +220,7 @@ const ALLOWED_EMAILS = [
   'chienchangw@gmail.com'
 ];
 
-let db = null;
-let fs = null;
-let auth = null;
-let authMod = null;
+let db = null, fs = null, auth = null, authMod = null;
 
 const authGate = document.getElementById('authGate');
 const authError = document.getElementById('authError');
@@ -282,15 +238,17 @@ const logBody = document.getElementById('logBody');
 const setupBanner = document.getElementById('setupBanner');
 
 let currentDate = '';
-let state = { items: [], remarks: '' };
+let state = { items: [], remarks: '', deleted: [] };
 let saveTimer = null;
 let unsubDoc = null;
+let allActive = false;
+let delActive = false;
+let cloudReady = false;
+let lastCloud = { t:0, d:0 };
+let dirty = false;
 
 function pad(n){ return String(n).padStart(2,'0'); }
-function todayStr(){
-  const d = new Date();
-  return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
-}
+function todayStr(){ const d = new Date(); return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
 function shiftDate(str, days){
   const p = str.split('-').map(Number);
   const d = new Date(p[0], p[1]-1, p[2]);
@@ -299,20 +257,12 @@ function shiftDate(str, days){
 }
 function uid(){ return 'i' + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
 function localKey(d){ return 'daily_checklist_' + d; }
+function setSync(text, warn){ syncLine.textContent = text; syncLine.classList.toggle('warn', !!warn); }
+function autosize(el){ el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; }
 
-function setSync(text, warn){
-  syncLine.textContent = text;
-  syncLine.classList.toggle('warn', !!warn);
-}
-
-function saveLocal(d, s){
-  try{ localStorage.setItem(localKey(d), JSON.stringify(s)); }catch(e){}
-}
+function saveLocal(d, s){ try{ localStorage.setItem(localKey(d), JSON.stringify(s)); }catch(e){} }
 function loadLocal(d){
-  try{
-    const raw = localStorage.getItem(localKey(d));
-    if(raw) return JSON.parse(raw);
-  }catch(e){}
+  try{ const raw = localStorage.getItem(localKey(d)); if(raw) return JSON.parse(raw); }catch(e){}
   return null;
 }
 
@@ -325,7 +275,12 @@ function normalize(data){
       choice: (it.choice === 'yes' || it.choice === 'no') ? it.choice : null,
       note: it.note || ''
     })),
-    remarks: (data && data.remarks) || ''
+    remarks: (data && data.remarks) || '',
+    deleted: (Array.isArray(data && data.deleted) ? data.deleted : []).map(x => ({
+      id: x.id || uid(), text: x.text || '',
+      choice: (x.choice === 'yes' || x.choice === 'no') ? x.choice : null,
+      note: x.note || '', deletedAt: x.deletedAt || 0
+    }))
   };
 }
 
@@ -342,16 +297,12 @@ function render(){
     itemsBody.appendChild(p);
   }
   state.items.forEach((it, idx) => itemsBody.appendChild(buildItem(it, idx)));
+  itemsBody.querySelectorAll('.item-input').forEach(autosize);
 
-  if(document.activeElement !== remarksEl){
-    remarksEl.value = state.remarks || '';
-  }
+  if(document.activeElement !== remarksEl) remarksEl.value = state.remarks || '';
   if(activeKey){
     const el = itemsBody.querySelector('[data-key="'+activeKey+'"]');
-    if(el){
-      el.focus();
-      try{ el.setSelectionRange(selStart, selStart); }catch(e){}
-    }
+    if(el){ el.focus(); try{ el.setSelectionRange(selStart, selStart); }catch(e){} }
   }
 }
 
@@ -366,13 +317,14 @@ function buildItem(it, idx){
   no.className = 'item-no';
   no.textContent = (idx+1) + '.';
 
-  const input = document.createElement('input');
-  input.type = 'text';
+  const input = document.createElement('textarea');
+  input.rows = 1;
   input.className = 'item-input';
   input.value = it.text || '';
   input.placeholder = '請輸入確認項目';
   input.dataset.key = it.id + ':text';
-  input.addEventListener('input', () => { it.text = input.value; queueSave(); });
+  input.addEventListener('input', () => { it.text = input.value; autosize(input); queueSave(); });
+  input.addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); } });
 
   const pair = document.createElement('div');
   pair.className = 'choice-pair';
@@ -408,10 +360,7 @@ function buildItem(it, idx){
 
   wrap.appendChild(head); wrap.appendChild(noteRow);
 
-  yesBtn.addEventListener('click', () => {
-    it.choice = (it.choice === 'yes') ? null : 'yes';
-    render(); queueSave(true);
-  });
+  yesBtn.addEventListener('click', () => { it.choice = (it.choice === 'yes') ? null : 'yes'; render(); queueSave(true); });
   noBtn.addEventListener('click', () => {
     const turningOn = it.choice !== 'no';
     it.choice = turningOn ? 'no' : null;
@@ -422,10 +371,15 @@ function buildItem(it, idx){
     }
   });
   delBtn.addEventListener('click', () => {
+    const label = (it.text || '').trim() || '（空白項目）';
+    if(!confirm('確定要刪除第 ' + (idx+1) + ' 項嗎？\n\n「' + label + '」\n\n刪除後可在「刪除紀錄」分頁還原。')) return;
+    if((it.text || '').trim() || it.note || it.choice){
+      state.deleted = state.deleted || [];
+      state.deleted.push({ id: it.id, text: it.text, choice: it.choice, note: it.note, deletedAt: Date.now() });
+    }
     state.items = state.items.filter(x => x.id !== it.id);
     render(); queueSave(true);
   });
-
   return wrap;
 }
 
@@ -434,6 +388,14 @@ remarksEl.addEventListener('input', () => { state.remarks = remarksEl.value; que
 function saveNow(){
   saveLocal(currentDate, state);
   if(db && fs){
+    if(!cloudReady){ setSync('尚未讀到雲端資料，暫不上傳（避免覆蓋），變更已暫存本機。', true); renderLog(); return; }
+    const nowT = state.items.filter(x => x.text && x.text.trim()).length;
+    if(lastCloud.t > 0 && nowT === 0 && (state.deleted || []).length <= lastCloud.d){
+      setSync('已阻擋上傳：這會把雲端已有的內容清空。請用「✕」逐筆刪除，或重新整理頁面。', true);
+      renderLog(); return;
+    }
+    lastCloud = { t: nowT, d: (state.deleted || []).length };
+    dirty = false;
     fs.setDoc(fs.doc(db, 'checklist_days', currentDate), state)
       .then(() => setSync('已同步：' + currentDate))
       .catch((err) => {
@@ -442,28 +404,33 @@ function saveNow(){
       });
   }
   renderLog();
+  if(allActive) renderAll();
+  if(delActive) renderDel();
 }
-
-function queueSave(immediate){
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(saveNow, immediate ? 60 : 700);
-}
+function queueSave(immediate){ dirty = true; clearTimeout(saveTimer); saveTimer = setTimeout(saveNow, immediate ? 60 : 700); }
 
 function switchDay(d){
   currentDate = d;
   dateEl.value = d;
   if(unsubDoc){ unsubDoc(); unsubDoc = null; }
-
+  clearTimeout(saveTimer); cloudReady = false; dirty = false;
   state = normalize(loadLocal(d));
   render();
 
   if(db && fs){
     setSync('讀取中…');
     unsubDoc = fs.onSnapshot(fs.doc(db, 'checklist_days', d), snap => {
-      if(!snap.exists()){
-        setSync(d + '：還沒有內容，新增項目後會自動儲存並同步。');
-        return;
+      const first = !cloudReady; cloudReady = true;
+      { const n0 = snap.exists() ? normalize(snap.data()) : null;
+        lastCloud = n0 ? { t: n0.items.filter(x => x.text && x.text.trim()).length, d: n0.deleted.length } : { t:0, d:0 }; }
+      if(first && dirty){
+        const inc = snap.exists() ? normalize(snap.data()) : { items: [], remarks: '', deleted: [] };
+        const ids = new Set(inc.items.map(x => x.id));
+        state.items.forEach(x => { if(!ids.has(x.id)) inc.items.push(x); });
+        if(!inc.remarks) inc.remarks = state.remarks;
+        state = inc; render(); saveNow(); return;
       }
+      if(!snap.exists()){ setSync(d + '：還沒有內容，新增項目後會自動儲存並同步。'); return; }
       const incoming = normalize(snap.data());
       if(JSON.stringify(incoming) === JSON.stringify(state)){ setSync('已同步：' + d); return; }
       const typing = document.activeElement &&
@@ -485,6 +452,8 @@ function switchDay(d){
   }
 }
 
+function choiceLabel(c){ return c==='yes' ? '可' : (c==='no' ? '否' : '未回覆'); }
+
 function renderLog(){
   logBody.innerHTML = '';
   const days = [];
@@ -497,8 +466,7 @@ function renderLog(){
       const data = dataByDay[d];
       if(!data) return;
       const norm = normalize(data);
-      const hasAnswer = norm.items.some(it => it.text && (it.choice || it.note));
-      if(!hasAnswer) return;
+      if(!norm.items.some(it => it.text && (it.choice || it.note))) return;
       count++;
       const entry = document.createElement('div');
       entry.className = 'log-entry';
@@ -510,9 +478,8 @@ function renderLog(){
       norm.items.forEach(it => {
         if(!it.text) return;
         const line = document.createElement('div');
-        const c = it.choice==='yes' ? '可' : (it.choice==='no' ? '否' : '未回覆');
         line.className = 'log-item' + (it.choice==='no' ? ' no' : it.choice==='yes' ? ' yes' : '');
-        line.textContent = it.text + '：' + c + (it.note ? '（' + it.note + '）' : '');
+        line.textContent = it.text + '：' + choiceLabel(it.choice) + (it.note ? '（' + it.note + '）' : '');
         entry.appendChild(line);
       });
       logBody.appendChild(entry);
@@ -524,6 +491,7 @@ function renderLog(){
       logBody.appendChild(p);
     }
   }
+  const fromLocal = () => { const map = {}; days.forEach(d => { const l = loadLocal(d); if(l) map[d] = l; }); renderEntries(map); };
 
   if(db && fs){
     Promise.all(days.map(d =>
@@ -532,17 +500,163 @@ function renderLog(){
       const map = {};
       pairs.forEach(([d, data]) => { if(data) map[d] = data; });
       renderEntries(map);
-    }).catch(() => {
-      const map = {};
-      days.forEach(d => { const l = loadLocal(d); if(l) map[d] = l; });
-      renderEntries(map);
-    });
-  }else{
-    const map = {};
-    days.forEach(d => { const l = loadLocal(d); if(l) map[d] = l; });
-    renderEntries(map);
-  }
+    }).catch(fromLocal);
+  }else fromLocal();
 }
+
+// ===== 所有項目（不分日期）=====
+async function loadAllDays(){
+  const map = {};
+  for(let i=0;i<localStorage.length;i++){
+    const key = localStorage.key(i);
+    if(key && key.indexOf('daily_checklist_') === 0){
+      const d = key.replace('daily_checklist_', '');
+      if(/^\d{4}-\d{2}-\d{2}$/.test(d)){ const l = loadLocal(d); if(l) map[d] = l; }
+    }
+  }
+  if(db && fs){
+    try{
+      const snap = await fs.getDocs(fs.collection(db, 'checklist_days'));
+      snap.forEach(doc => { map[doc.id] = doc.data(); });
+    }catch(e){ console.error('[checklist] load all error:', e); }
+  }
+  return map;
+}
+
+let allCache = [];
+async function renderAll(){
+  const map = await loadAllDays();
+  allCache = [];
+  Object.keys(map).sort().reverse().forEach(d => {
+    normalize(map[d]).items.forEach(it => { if(it.text.trim()) allCache.push({ date: d, ...it }); });
+  });
+  drawAll();
+}
+function drawAll(){
+  const q = document.getElementById('allSearch').value.trim().toLowerCase();
+  const f = document.getElementById('allFilter').value;
+  const body = document.getElementById('allBody');
+  body.innerHTML = '';
+  const rows = allCache.filter(r => {
+    if(f === 'yes' && r.choice !== 'yes') return false;
+    if(f === 'no' && r.choice !== 'no') return false;
+    if(f === 'none' && r.choice) return false;
+    if(q && (r.text + ' ' + r.note).toLowerCase().indexOf(q) < 0) return false;
+    return true;
+  });
+  document.getElementById('allCount').textContent = '共 ' + rows.length + ' 筆項目（依日期由新到舊）';
+  if(!rows.length){
+    const p = document.createElement('div'); p.className = 'empty'; p.textContent = '沒有符合的項目。';
+    body.appendChild(p); return;
+  }
+  rows.forEach(r => {
+    const row = document.createElement('div');
+    row.className = 'all-row' + (r.choice === 'no' ? ' is-no' : '');
+    const top = document.createElement('div'); top.className = 'all-top';
+    const dt = document.createElement('span'); dt.textContent = r.date.replace(/-/g,'/');
+    const bd = document.createElement('span');
+    bd.className = 'badge' + (r.choice ? ' ' + r.choice : '');
+    bd.textContent = choiceLabel(r.choice);
+    top.appendChild(dt); top.appendChild(bd);
+    const tx = document.createElement('div'); tx.className = 'all-text'; tx.textContent = r.text;
+    row.appendChild(top); row.appendChild(tx);
+    if(r.note){ const n = document.createElement('div'); n.className = 'all-note'; n.textContent = '備註：' + r.note; row.appendChild(n); }
+    row.title = '點擊回到該日確認頁面';
+    row.addEventListener('click', () => {
+      showTab('daily');
+      switchDay(r.date);
+      setTimeout(() => {
+        const el = itemsBody.querySelector('[data-key="' + r.id + ':text"]');
+        const box = el && el.closest('.item');
+        if(box){ box.scrollIntoView({ block:'center', behavior:'smooth' }); box.classList.add('flash'); setTimeout(() => box.classList.remove('flash'), 1800); }
+        else window.scrollTo({ top:0, behavior:'smooth' });
+      }, 350);
+    });
+    body.appendChild(row);
+  });
+}
+document.getElementById('allSearch').addEventListener('input', drawAll);
+document.getElementById('allFilter').addEventListener('change', drawAll);
+
+let delCache = [];
+async function renderDel(){
+  const map = await loadAllDays();
+  delCache = [];
+  Object.keys(map).forEach(d => {
+    normalize(map[d]).deleted.forEach(x => delCache.push({ date: d, ...x }));
+  });
+  delCache.sort((a,b) => b.deletedAt - a.deletedAt);
+  const body = document.getElementById('delBody');
+  body.innerHTML = '';
+  document.getElementById('delCount').textContent = '共 ' + delCache.length + ' 筆刪除紀錄（由新到舊）';
+  if(!delCache.length){
+    const p = document.createElement('div'); p.className = 'empty'; p.textContent = '目前沒有刪除紀錄。';
+    body.appendChild(p); return;
+  }
+  delCache.forEach(r => {
+    const row = document.createElement('div');
+    row.className = 'all-row' + (r.choice === 'no' ? ' is-no' : '');
+    const top = document.createElement('div'); top.className = 'all-top';
+    const dt = document.createElement('span');
+    const t = r.deletedAt ? new Date(r.deletedAt) : null;
+    dt.textContent = '原日期 ' + r.date.replace(/-/g,'/') + (t ? '　刪除於 ' + t.getFullYear()+'/'+pad(t.getMonth()+1)+'/'+pad(t.getDate())+' '+pad(t.getHours())+':'+pad(t.getMinutes()) : '');
+    const bd = document.createElement('span');
+    bd.className = 'badge' + (r.choice ? ' ' + r.choice : '');
+    bd.textContent = choiceLabel(r.choice);
+    top.appendChild(dt); top.appendChild(bd);
+    const tx = document.createElement('div'); tx.className = 'all-text'; tx.textContent = r.text || '（空白項目）';
+    row.appendChild(top); row.appendChild(tx);
+    if(r.note){ const n = document.createElement('div'); n.className = 'all-note'; n.textContent = '備註：' + r.note; row.appendChild(n); }
+    const btn = document.createElement('button');
+    btn.className = 'restore-btn'; btn.textContent = '還原';
+    btn.addEventListener('click', () => restoreItem(r));
+    row.appendChild(btn);
+    body.appendChild(row);
+  });
+}
+
+async function restoreItem(r){
+  if(!confirm('要把這項還原到 ' + r.date.replace(/-/g,'/') + ' 嗎？')) return;
+  const move = (st) => {
+    st.deleted = (st.deleted || []).filter(x => x.id !== r.id);
+    st.items.push({ id: r.id, text: r.text, choice: r.choice, note: r.note });
+  };
+  if(r.date === currentDate){
+    move(state); render(); queueSave(true);
+  }else{
+    let data = null;
+    if(db && fs){
+      try{ const snap = await fs.getDoc(fs.doc(db, 'checklist_days', r.date)); if(snap.exists()) data = snap.data(); }catch(e){}
+    }
+    if(!data) data = loadLocal(r.date);
+    const st = normalize(data);
+    move(st);
+    saveLocal(r.date, st);
+    if(db && fs){
+      try{ await fs.setDoc(fs.doc(db, 'checklist_days', r.date), st); }
+      catch(e){ console.error('[checklist] restore error:', e); alert('同步失敗，已暫存在這台裝置。'); }
+    }
+    renderLog();
+  }
+  renderDel();
+}
+
+function showTab(name){
+  allActive = name === 'all';
+  delActive = name === 'del';
+  document.getElementById('tabDaily').classList.toggle('active', name === 'daily');
+  document.getElementById('tabAll').classList.toggle('active', allActive);
+  document.getElementById('tabDel').classList.toggle('active', delActive);
+  document.getElementById('viewDaily').classList.toggle('active', name === 'daily');
+  document.getElementById('viewAll').classList.toggle('active', allActive);
+  document.getElementById('viewDel').classList.toggle('active', delActive);
+  if(allActive) renderAll();
+  else if(delActive) renderDel();
+  else document.querySelectorAll('.item-input').forEach(autosize);
+}
+document.getElementById('tabDaily').addEventListener('click', () => showTab('daily'));
+document.getElementById('tabAll').addEventListener('click', () => showTab('all'));
+document.getElementById('tabDel').addEventListener('click', () => showTab('del'));
 
 document.getElementById('addItemBtn').addEventListener('click', () => {
   state.items.push({ id: uid(), text:'', choice:null, note:'' });
@@ -556,10 +670,7 @@ document.getElementById('copyPrevBtn').addEventListener('click', async () => {
   const prev = shiftDate(currentDate, -1);
   let data = null;
   if(db && fs){
-    try{
-      const snap = await fs.getDoc(fs.doc(db, 'checklist_days', prev));
-      if(snap.exists()) data = snap.data();
-    }catch(e){}
+    try{ const snap = await fs.getDoc(fs.doc(db, 'checklist_days', prev)); if(snap.exists()) data = snap.data(); }catch(e){}
   }
   if(!data) data = loadLocal(prev);
   if(!data){ statusMsg.textContent = prev + ' 沒有資料可沿用。'; return; }
@@ -574,15 +685,12 @@ document.getElementById('prevDay').addEventListener('click', () => switchDay(shi
 document.getElementById('nextDay').addEventListener('click', () => switchDay(shiftDate(currentDate,1)));
 document.getElementById('todayBtn').addEventListener('click', () => switchDay(todayStr()));
 dateEl.addEventListener('change', () => { if(dateEl.value) switchDay(dateEl.value); });
-document.getElementById('printBtn').addEventListener('click', () => window.print());
+window.addEventListener('resize', () => document.querySelectorAll('.item-input').forEach(autosize));
 
-// 一次性救援：把本機 localStorage 裡「有內容」、但雲端那天文件是空的資料，補寫回 Firestore。
-// 只會在這台裝置、這個瀏覽器上有效，執行過一次後會標記完成，不會重複執行。
 async function recoverLocalToCloud(){
   if(!db || !fs) return;
   const RECOVER_FLAG = 'daily_checklist_recovered_v1';
   if(localStorage.getItem(RECOVER_FLAG)) return;
-
   const candidates = [];
   for(let i=0;i<localStorage.length;i++){
     const key = localStorage.key(i);
@@ -591,28 +699,20 @@ async function recoverLocalToCloud(){
       if(/^\d{4}-\d{2}-\d{2}$/.test(d)) candidates.push(d);
     }
   }
-
   let recovered = [];
   for(const d of candidates){
     const local = normalize(loadLocal(d));
-    const hasLocalContent = local.items.some(it => it.text && it.text.trim());
-    if(!hasLocalContent) continue;
-
+    if(!local.items.some(it => it.text && it.text.trim())) continue;
     try{
       const snap = await fs.getDoc(fs.doc(db, 'checklist_days', d));
       const remote = snap.exists() ? normalize(snap.data()) : { items: [], remarks: '' };
-      const remoteHasContent = remote.items.some(it => it.text && it.text.trim());
-      if(!remoteHasContent){
+      if(!remote.items.some(it => it.text && it.text.trim())){
         await fs.setDoc(fs.doc(db, 'checklist_days', d), local);
         recovered.push(d);
       }
-    }catch(e){
-      console.error('[checklist] recovery failed for', d, e);
-    }
+    }catch(e){ console.error('[checklist] recovery failed for', d, e); }
   }
-
   localStorage.setItem(RECOVER_FLAG, '1');
-
   const recoverMsg = document.getElementById('recoverMsg');
   if(recovered.length){
     recoverMsg.textContent = '✅ 已從這台裝置的暫存，救回並同步以下日期的資料：' + recovered.sort().join('、');
@@ -630,6 +730,7 @@ function startApp(user){
   if(appStarted) return;
   appStarted = true;
   switchDay(todayStr());
+  renderLog();
   recoverLocalToCloud();
 }
 
@@ -670,10 +771,7 @@ async function boot(){
     signOutBtn.addEventListener('click', () => authMod.signOut(auth));
 
     authMod.onAuthStateChanged(auth, (user) => {
-      if(!user){
-        showGate('');
-        return;
-      }
+      if(!user){ showGate(''); return; }
       const email = (user.email || '').toLowerCase();
       const allowed = ALLOWED_EMAILS.map(e => e.toLowerCase()).includes(email);
       if(!allowed){
@@ -687,11 +785,9 @@ async function boot(){
     console.error('[checklist] Firebase init error:', e);
     setupBanner.style.display = 'block';
     setupBanner.textContent = 'Firebase 連線失敗（' + (e && e.message ? e.message : e) + '），請確認 firebaseConfig 設定是否正確、Firestore 是否已建立。目前資料只存在這台裝置。';
-    setupBanner.style.borderColor = 'var(--red)';
     showGate('Firebase 初始化失敗，無法登入。');
   }
 }
-
 boot();
 </script>
 </body>
